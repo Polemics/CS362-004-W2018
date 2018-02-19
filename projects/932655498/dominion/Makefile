@@ -9,76 +9,53 @@ dominion.o: dominion.h dominion.c rngs.o
 playdom: dominion.o playdom.c
 	gcc -o playdom playdom.c -g dominion.o rngs.o $(CFLAGS)
 
-testDrawCard: testDrawCard.c dominion.o rngs.o
-	gcc -o testDrawCard -g  testDrawCard.c dominion.o rngs.o $(CFLAGS)
+randa:
+	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c randomtestadventurer.c rngs.c -o randa -lm -g
 
-#each unit test gets a make command
-#each 
-unit1:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c unittest1.c rngs.c -o unittest1 -lm -g
+rand1:
+	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c randomtestcard1.c rngs.c -o rand1 -lm -g
 
-unit2:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c unittest2.c rngs.c -o unittest2 -lm -g
+rand2:
+	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c randomtestcard2.c rngs.c -o rand2 -lm -g
 
-unit3:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c unittest3.c rngs.c -o unittest3 -lm -g
+randk:
+	rm -f randa rand1 rand2
 
-unit4:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c unittest4.c rngs.c -o unittest4 -lm -g
+mr2: randk  randa rand1 rand2 
 
-card1:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c cardtest1.c rngs.c -o cardtest1 -lm -g
+runrand: mr2
+	./randa
+	rm -f randomtestadventurer.out 
+	rm -f randomtestadventurer.c.gcov
+	rm -f randomtestadventurer.gcda
+#	rm -f randomtestadventurer.gcno
+	./randa > randomtestadventurer.out 
+	gcov randomtestadventurer.c >> randomtestadventurer.out 
+	cat randomtestadventurer.c.gcov >> randomtestadventurer.out
+	gcov dominion.c >> randomtestadventurer.out
+	cat dominion.c.gcov >> randomtestadventurer.out
 
-card2:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c cardtest2.c rngs.c -o cardtest2 -lm -g
-
-card3:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c cardtest3.c rngs.c -o cardtest3 -lm -g
-
-card4:
-	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c cardtest4.c rngs.c -o cardtest4 -lm -g
-
-#unittestresults.out command will call all of the unit and card commands above
-#then it removes the old unittestresults.out and starts appending the results of the execution into 
-#unittestresults.out then appends the gcov tests to unittestresults.out
-#probably overkill here to also cat the .gcov for the tests themselves to the unittestresults.out
-#but it worked and I didn't want to mess with it.
-unittestresults.out: unit1 unit2 unit3 unit4 card1 card2 card3 card4
-	rm -f unittestresults.out
-	./unittest1 >> unittestresults.out
-	./unittest2 >> unittestresults.out
-	./unittest3 >> unittestresults.out
-	./unittest4 >> unittestresults.out
-	./cardtest1 >> unittestresults.out
-	./cardtest2 >> unittestresults.out
-	./cardtest3 >> unittestresults.out
-	./cardtest4 >> unittestresults.out
-	gcov unittest1.c >> unittestresults.out
-	cat unittest1.c.gcov >> unittestresults.out	
-	gcov unittest2.c >> unittestresults.out
-	cat unittest2.c.gcov >> unittestresults.out
-	gcov unittest3.c >> unittestresults.out
-	cat unittest3.c.gcov >> unittestresults.out
-	gcov unittest4.c >> unittestresults.out
-	cat unittest4.c.gcov >> unittestresults.out
-	gcov cardtest1.c >> unittestresults.out
-	cat cardtest1.c.gcov >> unittestresults.out
-	gcov cardtest2.c >> unittestresults.out
-	cat cardtest2.c.gcov >> unittestresults.out
-	gcov cardtest3.c >> unittestresults.out
-	cat cardtest3.c.gcov >> unittestresults.out
-	gcov cardtest4.c >> unittestresults.out
-	cat cardtest4.c.gcov >> unittestresults.out
-	gcov dominion.c >> unittestresults.out
-	cat dominion.c.gcov >> unittestresults.out
+	./rand1
+	rm -f randomtestcard1.out
+	rm -f randomtestcard1.c.gcov
+	rm -f randomtestcard1.gcda	
+	./rand1 > randomtestcard1.out	
+	gcov randomtestcard1.c >> randomtestcard1.out
+	cat randomtestcard1.c.gcov >> randomtestcard1.out
+	gcov dominion.c >> randomtestcard1.out
+	cat dominion.c.gcov >> randomtestcard1.out 
 	
-interface.o: interface.h interface.c
-	gcc -c interface.c -g  $(CFLAGS)
+	./rand2
+	rm -f randomtestcard2.out
+	rm -f randomtestcard2.c.gcov
+	rm -f randomtestcard2.gcda
+	./rand2 > randomtestcard2.out
+	gcov randomtestcard2.c >> randomtestcard2.out 
+	cat randomtestcard2.c.gcov >> randomtestcard2.out
+	gcov dominion.c >> randomtestcard2.out
+	cat dominion.c.gcov >> randomtestcard2.out
 
-player: player.c interface.o
-	gcc -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
-all: playdom player testDrawCard testBuyCard badTestDrawCard
 
 clean:
-	rm -f *.o playdom.exe playdom test.exe test player unittest1 unittest2 unittest3 unittest4 cardtest1 cardtest2 cardtest3 cardtest4 player.exe testInit testInit.exe *.gcov *.gcda *.gcno *.so
+	rm -f *.o playdom.exe playdom test.exe test player unittest1 unittest2 unittest3 unittest4 cardtest1 cardtest2 cardtest3 cardtest4 randa player.exe testInit testInit.exe *.gcov *.gcda *.gcno *.so

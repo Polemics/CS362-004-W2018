@@ -1,0 +1,120 @@
+        -:    0:Source:randomtestadventurer.c
+        -:    0:Graph:randomtestadventurer.gcno
+        -:    0:Data:randomtestadventurer.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://Dustin Pack
+        -:    2://15 FEB 2018
+        -:    3://Random Test Adventurer
+        -:    4:
+        -:    5://Note look for "//soft assert" to see where im actually performing a logical test
+        -:    6://This code does not include a hard assert that crashes the program
+        -:    7://Reference & Citation testBuyCard.c was used for info on how to set up a game for test
+        -:    8://Citation for Generating Random Game State https://piazza.com/class/jbk4lmzexg4ce?cid=169
+        -:    9://Citation for random test coverage https://piazza.com/class/jbk4lmzexg4ce?cid=164
+        -:   10://Citation for gcov branch coverage https://piazza.com/class/jbk4lmzexg4ce?cid=158
+        -:   11://Citation or makefile help https://piazza.com/class/jbk4lmzexg4ce?cid=130
+        -:   12://Citation for c rand() https://stackoverflow.com/questions/822323/how-to-generate-a-random-number-in-c
+        -:   13://Citation for c passing a struct https://stackoverflow.com/questions/10370047/passing-struct-to-function
+        -:   14:#include <stdio.h>
+        -:   15:#include <math.h>
+        -:   16:#include <stdlib.h>
+        -:   17:#include <time.h>
+        -:   18:#include "dominion.h"
+        -:   19:
+        -:   20:int main() {
+        1:   21:    srand(time(NULL));
+        1:   22:    int k[10] = {adventurer, council_room, feast, gardens, mine,
+        -:   23:        remodel, smithy, duchy, baron, great_hall};
+        1:   24:    int coin_counter1 = 0;
+        1:   25:    int coin_counter2 = 0;
+        1:   26:    int test_counter = 0;
+        -:   27:    int idx;
+        -:   28:    int jdx;
+        -:   29:    struct gameState testGameState;
+        -:   30:    
+        1:   31:    printf("Begin Random Adventurer Test\n");
+        -:   32:    
+        -:   33:    //loop will run until num_tests has been reached
+        -:   34:    //This method was picked so NUM_TESTS could be dialed up or down to meet desired 
+        1:   35:    int num_tests = 50;
+        1:   36:    int num_tests_performed = 0;
+      102:   37:    for (test_counter = 0; test_counter < num_tests; test_counter++) {
+        -:   38:        //This line was supressed in order to not spam the terminal
+        -:   39:        //printf("Running Test%d\n", test_counter);
+        -:   40:        
+        -:   41:        //set up the game variables
+       50:   42:        int randGameSeed = rand();
+        -:   43:        int players, player;
+       50:   44:        players = (rand() % 3) + 2; //2-3 players
+       50:   45:        player = rand() % players; //set a random player
+        -:   46:        
+        -:   47:        //setup the game
+       50:   48:        if (!(initializeGame(players, k, randGameSeed, &testGameState) == 0)){
+    #####:   49:            printf("Failed to initalize during test %d", test_counter);
+    #####:   50:            break;
+        -:   51:        }
+        -:   52:        
+        -:   53:        //set the player's turn
+       50:   54:        testGameState.whoseTurn = player;
+        -:   55:        
+        -:   56:        //set hand for player
+       50:   57:        testGameState.handCount[player] = (rand() % (MAX_HAND - 1)) + 1;
+    25036:   58:        for (idx = 0; idx < testGameState.handCount[player]; idx++) {
+    12468:   59:            testGameState.hand[player][idx] = rand() % treasure_map;
+    12468:   60:        }
+        -:   61:        
+        -:   62:        //set deck for player
+       50:   63:        testGameState.deckCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+    26318:   64:        for (idx = 0; idx < testGameState.deckCount[player]; idx++) {
+    13109:   65:            testGameState.deck[player][idx] = rand() % treasure_map;
+    13109:   66:        }
+        -:   67:        
+        -:   68:        //set discard count to be less than the player's hand count
+       50:   69:        testGameState.discardCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+     9640:   70:        while (testGameState.discardCount[player] >= testGameState.handCount[player]){
+     4770:   71:            testGameState.discardCount[player] --;
+        -:   72:        }
+        -:   73:        
+    18234:   74:        for (idx = 0; idx < testGameState.discardCount[player]; idx++) {
+     9067:   75:            testGameState.discard[player][idx] = rand() % treasure_map;
+     9067:   76:        }
+        -:   77:        
+        -:   78:        //test using a gold piece
+       50:   79:        if (testGameState.deckCount[player] != 0){
+       50:   80:            coin_counter1 = 0;
+       50:   81:            jdx = rand() % testGameState.deckCount[player];
+       50:   82:            testGameState.deck[player][jdx] = gold;
+       50:   83:            testGameState.deck[player][jdx+1] = gold;
+    25036:   84:            for (idx = 0; idx < testGameState.handCount[player]; idx++){
+    35980:   85:                if (testGameState.hand[player][idx] == 6 || testGameState.hand[player][idx] == 5 || testGameState.hand[player][idx] == 4){
+     1447:   86:                    coin_counter1++;
+     1447:   87:                }
+    12468:   88:            }
+        -:   89:            //soft assert to make sure the card effect triggered
+       50:   90:            if (!(cardEffect(adventurer, 0, 0, 0, &testGameState, 0, 0) == 0)){
+    #####:   91:                printf("Failed to trigger the card effect on test %d ", test_counter);
+        -:   92:                
+    #####:   93:            }
+        -:   94:            //make sure treasure is in the hand
+       50:   95:            coin_counter2 = 0;
+    25236:   96:            for (idx = 0; idx < testGameState.handCount[player]; idx++){
+    36280:   97:                if (testGameState.hand[player][idx] == 6|| testGameState.hand[player][idx] == 5 || testGameState.hand[player][idx] == 4){
+     1547:   98:                    coin_counter2++;
+     1547:   99:                }
+    12568:  100:            }
+        -:  101:            //soft assrt to make sure the counts of teasures line up
+        -:  102:            //note this SHOULD fail some times since I introduced a bug in assignment 2
+       50:  103:            if (!(coin_counter2 == (coin_counter1+2))){
+    #####:  104:                printf("Failed count of the treasure on test %d ", test_counter);
+    #####:  105:                printf("Treasure should be 2 but treasure is %d\n", coin_counter2);
+    #####:  106:            }
+       50:  107:        }
+       50:  108:        num_tests_performed++;
+       50:  109:    }
+        -:  110:    
+        1:  111:    printf("Number of Tests Completed: %d\n", num_tests_performed);
+        1:  112:    printf("End Random Adventurer Test\n");
+        -:  113:    
+        1:  114:    return 0;
+        -:  115:}

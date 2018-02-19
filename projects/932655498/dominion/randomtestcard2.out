@@ -1,3 +1,144 @@
+Begin Random Smithy Test
+Smithy card effect failed: 500 times
+Number of Tests Completed: 500
+End Smithy Test
+File 'randomtestcard2.c'
+Lines executed:71.93% of 57
+randomtestcard2.c:creating 'randomtestcard2.c.gcov'
+
+        -:    0:Source:randomtestcard2.c
+        -:    0:Graph:randomtestcard2.gcno
+        -:    0:Data:randomtestcard2.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://Dustin Pack
+        -:    2://15 FEB 2018
+        -:    3://Random Test Smithy
+        -:    4:
+        -:    5://Note look for "//soft assert" to see where im actually performing a logical test
+        -:    6://This code does not include a hard assert that crashes the program
+        -:    7://Reference & Citation testBuyCard.c was used for info on how to set up a game for test
+        -:    8://Citation for Generating Random Game State https://piazza.com/class/jbk4lmzexg4ce?cid=169
+        -:    9://Citation for random test coverage https://piazza.com/class/jbk4lmzexg4ce?cid=164
+        -:   10://Citation for gcov branch coverage https://piazza.com/class/jbk4lmzexg4ce?cid=158
+        -:   11://Citation or makefile help https://piazza.com/class/jbk4lmzexg4ce?cid=130
+        -:   12://Citation for c rand() https://stackoverflow.com/questions/822323/how-to-generate-a-random-number-in-c
+        -:   13://Citation for c passing a struct https://stackoverflow.com/questions/10370047/passing-struct-to-function
+        -:   14:
+        -:   15:
+        -:   16:#include <stdlib.h>
+        -:   17:#include <stdio.h>
+        -:   18:#include <time.h>
+        -:   19:#include <math.h>
+        -:   20:#include "dominion.h"
+        -:   21:
+        -:   22:int main () {
+        1:   23:    srand(time(NULL));
+        -:   24:    
+        1:   25:    int k[10] = {adventurer, council_room, feast, gardens, mine,
+        -:   26:        remodel, smithy, duchy, baron, great_hall};
+        -:   27:    
+        -:   28:    struct gameState unchangedGameState;
+        -:   29:    struct gameState testGameState;
+        -:   30:    
+        1:   31:    int smithy_effect_fail_counter = 0;
+        1:   32:    int num_tests = 500;
+        1:   33:    int num_tests_performed = 0;
+        1:   34:    int test_counter = 0;
+        -:   35:    
+        1:   36:    printf("Begin Random Smithy Test\n");
+        -:   37:    // randomly initialized the game state
+     1002:   38:    for (test_counter = 0; test_counter < num_tests; test_counter++) {
+        -:   39:        
+        -:   40:        //set up the game variables
+        -:   41:        int players, player;
+      500:   42:        players = (rand() % 3) + 2; //2-3 players
+      500:   43:        player = rand() % players;
+      500:   44:        int randGameSeed = rand();
+        -:   45:        //soft assert
+      500:   46:        if (!(initializeGame(players, k, randGameSeed, &unchangedGameState) == 0)){
+    #####:   47:            printf("Failed to initalize during test %d\n", test_counter);
+    #####:   48:            break;
+        -:   49:        }
+        -:   50:        
+        -:   51:        //randomly set up the player variables
+      500:   52:        unchangedGameState.deckCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+      500:   53:        unchangedGameState.discardCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+      500:   54:        unchangedGameState.handCount[player] = (rand() % (MAX_HAND - 1)) + 1;
+      500:   55:        unchangedGameState.whoseTurn = player;
+        -:   56:        
+        -:   57:        //Begin Testing
+        -:   58:        
+        -:   59:        //The game is now set up; copy the state as 'unchangedGameState'
+        -:   60:        //This is used later in the program to test if the game state actually changed
+      500:   61:        testGameState = unchangedGameState;
+      500:   62:        int bonus = 0;
+        -:   63:        
+        -:   64:        //call smithy card and make sure it returnes a 0
+        -:   65:        //NOTE My Smithy Card always returns a -1, this will always fail
+        -:   66:        //NOTE 2 I supressed the printf so as to not spam the console with fails
+        -:   67:        //and instead added a fail counter to be reported at the end
+        -:   68:        int smithyReturnValue;
+      500:   69:        smithyReturnValue = cardEffect(smithy,0,0,0,&unchangedGameState,0,&bonus);
+      500:   70:        if (smithyReturnValue == -1) {
+        -:   71:            //printf("Smithy Card Effect test failed during %d", test_counter);
+      500:   72:            smithy_effect_fail_counter++;
+      500:   73:        }
+        -:   74:        
+        -:   75:        
+        -:   76:        //call draw card 3 times and see if it fails
+        -:   77:        int draw1, draw2, draw3;
+      500:   78:        draw1 = drawCard(player,&testGameState);
+      500:   79:        if (draw1 == -1) { //soft assert
+    #####:   80:            printf("First Draw Card test failed during %d\n", test_counter);
+    #####:   81:        }
+      500:   82:        draw2 = drawCard(player,&testGameState);
+      500:   83:        if (draw2 == -1) { //soft assert
+    #####:   84:            printf("Second Draw Card test failed during %d\n", test_counter);
+    #####:   85:        }
+      500:   86:        draw3 = drawCard(player,&testGameState);
+      500:   87:        if (draw3 == -1) { //soft assert
+    #####:   88:            printf("Third Draw Card test failed during %d\n", test_counter);
+    #####:   89:        }
+        -:   90:        //check to see if the draw card failed and if the deck counter was > 0
+        -:   91:        //cant draw from an empty deck
+     1500:   92:        if ((draw1 == -1 || draw2 == -1 || draw3 == -1) && testGameState.deckCount[player] > 0) { //soft assert
+    #####:   93:            printf("Deck Count test failed while drawing card during %d\n", test_counter);
+    #####:   94:        }
+        -:   95:        
+        -:   96:        
+        -:   97:        //call discardCard and check its return value
+        -:   98:        int discardReturnValue;
+      500:   99:        discardReturnValue = discardCard(0, player, &testGameState, 0);
+      500:  100:        if (discardReturnValue == -1) { //soft assert
+    #####:  101:            printf("Card Effect test failed during %d\n", test_counter);
+    #####:  102:        }
+        -:  103:        
+        -:  104:        //check if the hand count is the same
+      500:  105:        if (!(unchangedGameState.handCount[player] == testGameState.handCount[player])) { //soft assert
+    #####:  106:            printf("Hand Count test failed during %d\n", test_counter);
+    #####:  107:        }
+        -:  108:        
+        -:  109:        //check if the deck count is the same
+      500:  110:        if (!(unchangedGameState.deckCount[player] == testGameState.deckCount[player])) { //soft assert
+    #####:  111:            printf("Deck Count test failed during %d\n", test_counter);
+    #####:  112:        }
+      500:  113:        num_tests_performed++;
+        -:  114:        
+      500:  115:    }
+        1:  116:    if (smithy_effect_fail_counter > 0) { //soft assert
+        1:  117:        printf("Smithy card effect failed: %d times\n",smithy_effect_fail_counter);
+        1:  118:    }
+        1:  119:    printf("Number of Tests Completed: %d\n", num_tests_performed);
+        1:  120:    printf("End Smithy Test\n");
+        -:  121:    
+        1:  122:    return 0;
+        -:  123:}
+        -:  124:
+File 'dominion.c'
+Lines executed:28.22% of 645
+dominion.c:creating 'dominion.c.gcov'
+
         -:    0:Source:dominion.c
         -:    0:Graph:dominion.gcno
         -:    0:Data:dominion.gcda
