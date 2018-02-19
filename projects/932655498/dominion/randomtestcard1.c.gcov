@@ -1,0 +1,122 @@
+        -:    0:Source:randomtestcard1.c
+        -:    0:Graph:randomtestcard1.gcno
+        -:    0:Data:randomtestcard1.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://Dustin Pack
+        -:    2://15 FEB 2018
+        -:    3://Random Test Village
+        -:    4:
+        -:    5://Note look for "//soft assert" to see where im actually performing a logical test
+        -:    6://This code does not include a hard assert that crashes the program
+        -:    7://Reference & Citation testBuyCard.c was used for info on how to set up a game for test
+        -:    8://Citation for Generating Random Game State https://piazza.com/class/jbk4lmzexg4ce?cid=169
+        -:    9://Citation for random test coverage https://piazza.com/class/jbk4lmzexg4ce?cid=164
+        -:   10://Citation for gcov branch coverage https://piazza.com/class/jbk4lmzexg4ce?cid=158
+        -:   11://Citation or makefile help https://piazza.com/class/jbk4lmzexg4ce?cid=130
+        -:   12://Citation for c rand() https://stackoverflow.com/questions/822323/how-to-generate-a-random-number-in-c
+        -:   13://Citation for c passing a struct https://stackoverflow.com/questions/10370047/passing-struct-to-function
+        -:   14:#include "dominion.h"
+        -:   15:#include <stdio.h>
+        -:   16:#include <math.h>
+        -:   17:#include <stdlib.h>
+        -:   18:#include <time.h>
+        -:   19:
+        -:   20:int main() {
+        1:   21:    srand(time(NULL));
+        -:   22:    //Village is not in the supply deck, we will add village later
+        1:   23:    int k[10] = {adventurer, council_room, feast, gardens, mine,
+        -:   24:        remodel, smithy, duchy, baron, great_hall};
+        -:   25:
+        -:   26:    struct gameState testGameState;
+        -:   27:    struct gameState unchangedGameState;
+        -:   28:    
+        -:   29:    //where the village card on hand position
+        1:   30:    printf("Begin Random Village Test\n");
+        -:   31:    //loop will run until num_tests has been reached
+        -:   32:    //this method was picked so NUM_TESTS could be dialed up or down to meet desired
+        1:   33:    int num_tests = 50;
+        1:   34:    int num_tests_performed = 0;
+        -:   35:    int test_counter;
+        -:   36:    int idx; //for loop counters
+      102:   37:    for (test_counter = 0; test_counter < num_tests; test_counter++) {
+        -:   38:        
+        -:   39:        //set up the game variables
+       50:   40:        int randGameSeed = rand();
+        -:   41:        int players, player;
+       50:   42:        players = (rand() % 3) + 2; //2-3 players
+       50:   43:        player = rand() % players;
+        -:   44:
+        -:   45:        //setup the game and make a copy for later comparisons
+       50:   46:        if (!(initializeGame(players, k, randGameSeed, &testGameState) == 0)){
+    #####:   47:            printf("Failed to initalize during test %d\n", test_counter);
+    #####:   48:            break;
+        -:   49:        }
+        -:   50:        
+        -:   51:        //set the player's turn
+       50:   52:        testGameState.whoseTurn = player;
+        -:   53:        
+        -:   54:        //set hand for player
+       50:   55:        testGameState.handCount[player] = (rand() % (MAX_HAND - 1)) + 1;
+    23122:   56:        for (idx = 0; idx < testGameState.handCount[player]; idx++) {
+    11511:   57:            testGameState.hand[player][idx] = k[rand() % 10];
+    11511:   58:        }
+        -:   59:        
+        -:   60:        //replace a card in the hand with a village card
+        -:   61:        int villageHandPosition;
+       50:   62:        villageHandPosition = rand() % testGameState.handCount[player];
+       50:   63:        testGameState.hand[player][villageHandPosition] = village;
+        -:   64:        
+        -:   65:        //set deck for player
+       50:   66:        testGameState.deckCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+    29742:   67:        for (idx = 0; idx < testGameState.deckCount[player]; idx++) {
+    14821:   68:            testGameState.deck[player][idx] = k[rand() % 10];
+    14821:   69:        }
+        -:   70:        
+        -:   71:        //set discard count to be less than the player's hand count
+       50:   72:        testGameState.discardCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+     9728:   73:        while (testGameState.discardCount[player] >= testGameState.handCount[player]){
+     4814:   74:            testGameState.discardCount[player] --;
+        -:   75:        }
+        -:   76:        
+    17276:   77:        for (idx = 0; idx < testGameState.discardCount[player]; idx++) {
+     8588:   78:            testGameState.discard[player][idx] = k[rand() % 10];
+     8588:   79:        }
+        -:   80:        
+        -:   81:        //The game is now set up; copy the state as 'unchangedGameState'
+        -:   82:        //This is used later in the program to test if the game state actually changed
+       50:   83:        unchangedGameState = testGameState;
+        -:   84:        
+        -:   85:        //Call the village card effect
+       50:   86:        if (!(cardEffect(village, 0, 0, 0, &unchangedGameState, villageHandPosition, 0) == 0)){
+    #####:   87:            printf("Card effect failed to during test %d\n", test_counter);
+    #####:   88:            break;
+        -:   89:        }
+        -:   90:        
+        -:   91:        //check if no card called village
+    23122:   92:        for (idx = 0; idx < unchangedGameState.handCount[player]; idx++){
+    11511:   93:            if (unchangedGameState.hand[player][idx] == 14){
+    #####:   94:                printf("Village card is still in the hand %d\n", test_counter);
+    #####:   95:                break;
+        -:   96:            }
+    11511:   97:        }
+        -:   98:        
+        -:   99:        //from the card effect called above check that we have 2 more actions to perform now
+       50:  100:        if (!(unchangedGameState.numActions == testGameState.numActions + 2)){
+    #####:  101:            printf("Player failed to have +2 actions %d\n", test_counter);
+    #####:  102:            break;
+        -:  103:        }
+        -:  104:        
+        -:  105:        //from the card effect caled above check that the player's hand count is still the same
+        -:  106:        //this is due to drawing 1 card and discarding 1 card
+       50:  107:        if (!(unchangedGameState.handCount[player] == testGameState.handCount[player])){
+    #####:  108:            printf("Player's hand failed to discard a card on test %d\n", test_counter);
+    #####:  109:            break;
+        -:  110:        }
+       50:  111:        num_tests_performed++;
+       50:  112:    }
+        1:  113:    printf("Number of Tests Completed: %d\n", num_tests_performed);
+        1:  114:    printf("End Village Test\n");
+        -:  115:    
+        1:  116:    return 0;
+        -:  117:}
