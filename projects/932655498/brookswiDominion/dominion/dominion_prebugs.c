@@ -644,7 +644,7 @@ int getCost(int cardNumber)
 }
 
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
-{ 
+{
   int i;
   int j;
   int k;
@@ -1177,13 +1177,12 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
 {
 	
-    
   //if card is not trashed, added to Played pile 
   if (trashFlag < 1)
-    { 
+    {
       //add card to played pile
       state->playedCards[state->playedCardCount] = state->hand[currentPlayer][handPos]; 
-      state->playedCardCount++; 
+      state->playedCardCount++;
     }
 	
   //set played card to -1
@@ -1290,16 +1289,16 @@ int updateCoins(int player, struct gameState *state, int bonus)
 void adventurerEffect(int drawntreasure, int currentPlayer, struct gameState *state, int temphand[], int z)
 {
     int cardDrawn;
-    while(drawntreasure < 3)
+    while(drawntreasure < 2)
     {
         // If the deck is empty we need to shuffle discard and add to deck
 	    if (state->deckCount[currentPlayer] < 1) 
 	        shuffle(currentPlayer, state);
-	     
-        drawCard(currentPlayer, state); 
+	    
+        drawCard(currentPlayer, state);
 
         // Top card of hand is most recently drawn card.
-	    cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer] - 1];  
+	    cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer] - 1];
 
 	    if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
 	        drawntreasure++;
@@ -1314,13 +1313,12 @@ void adventurerEffect(int drawntreasure, int currentPlayer, struct gameState *st
 	    }
     }
       
-    //printf("%d\n", z);
     while(z - 1 >= 0)
     {
-        // Discard all cards in play that have been drawn     
-	    state->discard[currentPlayer][state->discardCount[currentPlayer]++] = temphand[z - 1];    
+        // Discard all cards in play that have been drawn
+	    state->discard[currentPlayer][state->discardCount[currentPlayer]++] = temphand[z - 1]; 
 	    z = z - 1;
-    } 
+    }
 }
 
 
@@ -1331,8 +1329,7 @@ void adventurerEffect(int drawntreasure, int currentPlayer, struct gameState *st
 void smithyEffect(int currentPlayer, int handPos, struct gameState *state)
 {
     // +3 Cards
-    int i;
-    for (i = 0; i <= 3; i++)
+    for (int i = 0; i < 3; i++)
 	    drawCard(currentPlayer, state);
 			
     // Discard card from hand
@@ -1360,8 +1357,8 @@ void stewardEffect(int choice1, int choice2, int choice3, int currentPlayer, int
     else
 	{
 	    // Trash 2 cards in hand
-	    discardCard(choice2, currentPlayer, state, 0);
-	    discardCard(choice3, currentPlayer, state, 0);
+	    discardCard(choice2, currentPlayer, state, 1);
+	    discardCard(choice3, currentPlayer, state, 1);
 	}
 			
     // Discard card from hand
@@ -1376,7 +1373,7 @@ void stewardEffect(int choice1, int choice2, int choice3, int currentPlayer, int
 void salvagerEffect(int choice1, int currentPlayer, int handPos, struct gameState *state)
 {
     // +1 buy
-    state->numBuys--;
+    state->numBuys++;
 			
     if (choice1)
 	{
@@ -1397,12 +1394,11 @@ void salvagerEffect(int choice1, int currentPlayer, int handPos, struct gameStat
 **************************************************************************************/
 void outpostEffect(int currentPlayer, int handPos, struct gameState *state)
 {
-      
       // Set outpost flag
       state->outpostPlayed++;
-      
+			
       // Discard card
-      discardCard(handPos, currentPlayer, state, 0); 
+      discardCard(handPos, currentPlayer, state, 0);
 } 
 
 
