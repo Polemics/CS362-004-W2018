@@ -1,127 +1,50 @@
-/***************************************************************************
-** Filename: cardtest2.c
-** Author: William Ryan Brooks
-** Date: 2018-02-04
-** Description: Unit test for the adventurer card effect in dominion.c
-****************************************************************************/
+#include "assert.h"
 #include "dominion.h"
-#include "dominion_helpers.h"
-#include <string.h>
 #include <stdio.h>
-#include <assert.h>
 #include "rngs.h"
 #include <stdlib.h>
 
-void assertTest(int val, int *tests)
-{
-    if (val == 1)
-        printf("--------TEST PASSED--------\n\n");
-    else
-        printf("--------TEST FAILED--------\n\n");
-    (*tests)++;
-}
-
-int main()
-{ 
-    // TEST: Adventurer card effect
-    printf("---------------------------------------------------------\n");
-    printf("              TESTING: Adventurer card effect\n");
-    printf("---------------------------------------------------------\n\n");
-
-    int passedTests = 0;
-    int failedTests = 0;
-
-    struct gameState state, testState;
-
-    int k[10] = {adventurer, council_room, feast, gardens, mine, remodel, smithy, village, baron, great_hall};
- 
-    // Game with max players  
-    int retValue = initializeGame(MAX_PLAYERS, k, 1, &state);
-
-    // Check that game is valid
-    assert(retValue == 0); 
- 
-    int player = 0;
-    int gainCards = 2;
-    int discardCards = 1;
-  
-    memcpy(&testState, &state, sizeof(struct gameState));
- 
-    cardEffect(adventurer, 0, 0, 0, &testState, 0, 0);
-
-    // TEST: 2 cards added to hand and adventurer card discarded
-    printf("---------------------------------------------------------------\n");
-    printf("    TEST: 2 cards added to hand and adventurer card discarded\n"); 
-    printf("---------------------------------------------------------------\n");
-
-    printf("testState.handCount[player] = %d, expected = %d\n", testState.handCount[player], state.handCount[player] + gainCards - discardCards); 
-    if (testState.handCount[player] == state.handCount[player] + gainCards - discardCards)
-        assertTest(1, &passedTests);
-    else
-        assertTest(0, &failedTests); 
-     
-    // TEST: 2 more treasure cards are in hand than before
-    printf("-------------------------------------------------------------------\n");
-    printf("    TEST: Exactly 2 more treasure cards are in hand than before\n");
-    printf("-------------------------------------------------------------------\n");
- 
-    int handCount, preHand, postHand;
-    int maxHandCount = state.handCount[player];
-    for (handCount = 0; handCount < maxHandCount; handCount++)
-    {
-        if (state.hand[player][handCount] == copper || state.hand[player][handCount] == silver || state.hand[player][handCount] == gold)    preHand++;
+//Test Adventurer
+//Reference & Citation testBuyCard.c ws used for info on how to set up a game for test
+//NOTE: My Adventurer has a bug from assignment 2, it returns -1 instead of 0
+/*
+ Adventurer: line 1182 changed second || operator to an && operator. This will cause the treasure counter to not increment unless the player draws a silver AND a gold... which isn’t possible while drawing 1 card.
+ */
+int main(int argc, char ** argv){
+    printf("Card Test 2: Adventurer: Beginning\n");
+    
+    struct gameState G;
+    int i, n, r, p, deckCount, discardCount, handCount;
+    int testGame, randInt = 0;
+    
+    int k[10] = {adventurer, council_room, feast, gardens, mine,
+        remodel, smithy, village, baron, great_hall};
+    
+    randInt = rand() % 10;
+    //Creating a test game
+    testGame = initializeGame(2, k, randInt, &G);
+    assert(testGame == 0);
+    
+    //variables for testing
+    int adventurerResult = 2; //set at any number besides -1 or 0
+    int currentPlayer = 0;
+    int temphand[MAX_HAND];
+    int z = 0; //counter for temp hand
+    int drawntreasure = 0;
+    int cardDrawn;
+    
+    adventurerResult = cardAdventurer(currentPlayer,temphand, z,&G,drawntreasure,cardDrawn);
+    
+    //printf("adventurerResult Is: %d\n", adventurerResult);
+    if (adventurerResult == -1) {
+        printf("Card Test 2: Adventurer: -1 Returned, Test Failed\n");
+    } else {
+        printf("Card Test 2: Adventurer: 0 Returned, Test Passed\n");
     }
-  
-    maxHandCount = testState.handCount[player]; 
-    for (handCount = 0; handCount < maxHandCount; handCount++)
-    {
-        if (testState.hand[player][handCount] == copper || testState.hand[player][handCount] == silver || testState.hand[player][handCount] == gold)    postHand++;
-    }
- 
-    printf("Number of treasure cards in hand = %d, expected = %d\n", postHand, preHand + 2);
-    if (postHand == preHand + 2)
-        assertTest(1, &passedTests);
-    else
-        assertTest(0, &failedTests); 
-
-    // TEST: All of the non-treasure cards that were drawn have been discarded
-    printf("---------------------------------------------------------------------------------\n");
-    printf("    TEST: All of the non-treasure cards that were drawn have been discarded\n"); 
-    printf("---------------------------------------------------------------------------------\n");
- 
-    int sameCards; 
-    maxHandCount = state.handCount[player]; 
-    for (handCount = 0; handCount < maxHandCount; handCount++)
-    {
-        if (testState.hand[player][handCount] == state.hand[player][handCount])
-            sameCards = 1;
-        else
-            sameCards = 0;
-    }
-        
-    printf("Same cards as before = %d, expected = 1\n", sameCards);
-    if (sameCards == 1)
-        assertTest(1, &passedTests);
-    else
-        assertTest(0, &failedTests);  
-
-    printf("\n");
-    printf("-----------------------------------------------------\n");
-    printf("         Tests passed: %d\n", passedTests);
-    printf("-----------------------------------------------------\n");
-
-    printf("\n");
-    printf("-----------------------------------------------------\n");
-    printf("         Tests failed: %d\n", failedTests);
-    printf("-----------------------------------------------------\n");
-
+    
+    
+    printf("Card Test 2: Adventurer: Ended\n");
     return 0;
 }
 
-     
 
-    
-    
-
-
-    

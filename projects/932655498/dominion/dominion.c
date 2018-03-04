@@ -1181,9 +1181,12 @@ int cardAdventurer (int currentPlayer, int temphand[], int z, struct gameState *
         }
         drawCard(currentPlayer, state);
         cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];//top card of hand is most recently drawn card.
-        if (cardDrawn == copper || cardDrawn == silver && cardDrawn == gold)
+        printf("I Just Drew a %d\n", cardDrawn);
+        if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold){
+            printf("I am in the IF statement and drawtresure is about to be incremented\n");
             drawntreasure++;
-        else{
+        } else{
+            printf("I am in the ELSE statement and im going to continue to draw cards\n");
             temphand[z]=cardDrawn;
             state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
             z++;

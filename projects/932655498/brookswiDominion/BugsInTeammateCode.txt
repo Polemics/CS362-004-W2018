@@ -1,0 +1,114 @@
+Bug Report 1
+Title: Smithy Bug Report Ryan Brooks Dominion Code
+Class: Serious Bug
+
+
+Date: 3 February 2018
+Reported By: Dustin Pack
+Email: packdu@oregonstate.edu
+
+Product: Dominion
+Platform: Terminal based executable; C source code
+
+Is it reproducible: Yes
+
+Description:
+A bug was found in dominion.c causing the smithy to incorrectly count the number of cards in hand and failed to update the deck count the deck count.  The Smithy card did successfully draw 3 cards.
+
+
+
+Steps to Produce/Reproduce
+--------------------------
+Create a valid game by initializing the gameState with valid variables (players, supply array, game set, gameState struct).  Call the cardEffect(...) passing in 'smithy' as the card parameter and valid arguments for the other parameters of cardEffect (choice1, choice2, choice3, state, handPos, &coin_bonus) for the test the variables were:
+choice1 = 0
+choice2 = 0
+choice 3 = 0
+state = the game state from the above created game state
+handPos = 0
+&coin_bonus = &bonus (an integer = 0)
+
+
+Expected Results
+----------------
+Draw 3 cards, update the player's hand and update the player's deck with each draw.  Discard cards as appropriate.
+
+Actual Results
+--------------
+Three cards were successfully drawn.  Discard cards returned the appropriate value.  Hand count test failed during each test.  Deck count failed during each test. 
+
+Workarounds
+-----------
+None.
+
+
+Attachments
+-----------
+see randomtestcard2.c in the git repository for my test code
+
+Other Information
+-----------------
+The test case was written to test hand count and deck count after each of the three cards were drawn.  It is unknown if the failure happens on the first, second or third card draw or if the failure happens 3 distinct times during the calling of Smithy.
+
+
+
+Bug Report 2:
+Title: Adventurer Bug Report Ryan Brooks Dominion Code
+Class: Serious Bug
+
+
+Date: 3 February 2018
+Reported By: Dustin Pack
+Email: packdu@oregonstate.edu
+
+Product: Dominion
+Platform: Terminal based executable; C source code
+
+Is it reproducible: Yes
+
+Description:
+A bug was found in dominion.c when calling cardEffect and passing adventurer as the card parameter.  When calling the adventurer the count of treasure incremented many more times than it should have.  The result was having treasure count between 17 and 61 when the adventurer returned to the main thread of the program.
+
+
+Steps to Produce/Reproduce
+--------------------------
+Create a valid game by initializing the gameState with valid variables (players, supply array, game set, gameState struct).  
+
+-Set the players turn to a valid player
+-Set the hand for the player to a valid hand
+-Set the deck to a valid deck for the player
+-Set the discard count to be less than the player's hand count
+-Add one gold piece to the hand to ensure at least 1 piece of treasure is in the hand, asserting that treasure is in the hand and counting the number of treasure.  [This ends the setup of the scenario prior to calling the cardEffect.]
+
+Call the cardEffect(...) passing in 'adventurer' as the card parameter and valid arguments for the other parameters of cardEffect (choice1, choice2, choice3, state, handPos, &coin_bonus) for the test the variables were:
+choice1 = 0
+choice2 = 0
+choice 3 = 0
+state = the game state from the above created game state
+handPos = 0
+&coin_bonus = &bonus (an integer = 0)
+
+Take a measurement of the final coin result and make sure it is consistent with the initial treasure count + the new treasure drawn.
+
+Expected Results
+----------------
+Call the card and the player should draw cards from the deck until 2 treasure cards have been drawn.  These two cards should go into the hand and all other cards drawn are discarded.
+
+
+Actual Results
+--------------
+The cardEffect(adventurer,...) continues to draw treasure cards past any possible amount of treasure.  
+
+Workarounds
+-----------
+None.
+
+
+Attachments
+-----------
+see randomtestadventurer.c for my test code
+
+
+Other Information
+-----------------
+The test case was written to test the count of treasure cards.  I am unsure with this test suite if the discard action on adventurer triggered appropriately.
+

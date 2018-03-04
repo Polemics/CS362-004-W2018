@@ -36,7 +36,7 @@ int main() {
     int num_tests_performed = 0;
     for (test_counter = 0; test_counter < num_tests; test_counter++) {
         //This line was supressed in order to not spam the terminal
-        //printf("Running Test%d\n", test_counter);
+        printf("Running Test%d\n", test_counter);
         
         //set up the game variables
         int randGameSeed = rand();
@@ -101,8 +101,12 @@ int main() {
             //soft assrt to make sure the counts of teasures line up
             //note this SHOULD fail some times since I introduced a bug in assignment 2
             if (!(coin_counter2 == (coin_counter1+2))){
+                
                 printf("Failed count of the treasure on test %d ", test_counter);
-                printf("Treasure should be 2 but treasure is %d\n", coin_counter2);
+                printf("Treasure should be 2 more than before but treasure is %d\n", coin_counter2);
+                printf("coin_counter2 %d\n", coin_counter2);
+                printf("coin_counter1 %d\n", coin_counter1);
+                breakpoint();
             }
         }
         num_tests_performed++;
@@ -113,3 +117,10 @@ int main() {
     
     return 0;
 }
+
+int breakpoint() {
+    printf("Triggered Fail\n");
+}
+
+
+

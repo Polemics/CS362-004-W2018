@@ -1,161 +1,124 @@
-/***************************************************************************
-** Filename: randomtestcard2.c
-** Author: William Ryan Brooks
-** Date: 2018-02-18
-** Description: Random test for the outpost card effect in dominion.c
-****************************************************************************/
-#include "dominion.h"
-#include "dominion_helpers.h"
-#include <string.h>
+//Dustin Pack
+//15 FEB 2018
+//Random Test Smithy
+
+//Note look for "//soft assert" to see where im actually performing a logical test
+//This code does not include a hard assert that crashes the program
+//Reference & Citation testBuyCard.c was used for info on how to set up a game for test
+//Citation for Generating Random Game State https://piazza.com/class/jbk4lmzexg4ce?cid=169
+//Citation for random test coverage https://piazza.com/class/jbk4lmzexg4ce?cid=164
+//Citation for gcov branch coverage https://piazza.com/class/jbk4lmzexg4ce?cid=158
+//Citation or makefile help https://piazza.com/class/jbk4lmzexg4ce?cid=130
+//Citation for c rand() https://stackoverflow.com/questions/822323/how-to-generate-a-random-number-in-c
+//Citation for c passing a struct https://stackoverflow.com/questions/10370047/passing-struct-to-function
+
+
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
-#include <assert.h>
-#include "rngs.h"
-#include <stdlib.h>
+#include "dominion.h"
 
-// Function prototype
-int testOutpostCard(int player, int handPos, struct gameState *state, int* passedTests, int* failedTests);
-
-void assertTest(int val, int *tests)
-{
-    if (val == 1)
-    {
-        // Suppress output
-        ;
-        //printf("--------TEST PASSED--------\n\n");
-    }
-    else
-        printf("--------TEST FAILED--------\n\n");
-    (*tests)++;
-}
-
-int main()
-{ 
-    // TEST: Outpost card effect
-    printf("----------------------------------------------------------------------------\n");
-    printf("                RANDOM TESTING: Outpost card effect\n");
-    printf("----------------------------------------------------------------------------\n\n");
-
-
-    // Keep track of tests
-    int passedTests = 0;
-    int failedTests = 0;
-
-    // Initialize RNG
-    time_t t;
-    SelectStream(2);
-    PutSeed((unsigned) time(&t));
-
-    int num, player, handPos, i;
-
-    // Create game state
-    struct gameState state;
-
-    // Number of tests
-    for (num = 0; num < 100000; num++)
-    {
-        for (i = 0; i < sizeof(struct gameState); i++)
-            ((char*)&state)[i] = floor(Random() * 256);
-
-        // Get random player
-        state.numPlayers = MAX_PLAYERS; 
-        player = floor(Random() * 4);
-        state.whoseTurn = player;
-      
-        // Get random deck count 
-        state.deckCount[player] = floor(Random() * MAX_DECK);
-                
-        // Get random discard count 
-        state.discardCount[player] = floor(Random() * MAX_DECK);
-        
-        // Get random hand count 
-        state.handCount[player] = floor(Random() * MAX_HAND);
-                
-        // Get random played card count 
-        state.playedCardCount = floor(Random() * MAX_DECK);
-        
-        // Set outpost flag to 0
-        state.outpostPlayed = 0;
-
-        // Get random hand position and set to outpost card 
-        handPos = floor(Random() * state.handCount[player]);
-        state.hand[player][handPos] = outpost; 
-
-        // Call test function
-        testOutpostCard(player, handPos, &state, &passedTests, &failedTests); 
-    }
-
-    printf("\n"); 
-    printf("-----------------------------------------------------\n");
-    printf("         Tests passed: %d\n", passedTests);
-    printf("-----------------------------------------------------\n");
-
-    printf("\n");
-    printf("-----------------------------------------------------\n");
-    printf("         Tests failed: %d\n", failedTests);
-    printf("-----------------------------------------------------\n");
-
-    return 0;   
-}
-
-
-int testOutpostCard(int player, int handPos, struct gameState *postState, int* passedTests, int* failedTests)
-{
-    // Save game state
-    struct gameState preState;
-    memcpy(&preState, postState, sizeof(struct gameState));
-
-    // Play outpost card
-    cardEffect(outpost, 0, 0, 0, postState, handPos, 0);
-
-    // Save preState variables
-    int preHandCount = preState.handCount[player];
-    int preDeckCount = preState.deckCount[player];
-    int preDiscardCount = preState.discardCount[player];
-
-    /* Simulate outpost card effects on preState */
-
-    // Set outpost flag
-    preState.outpostPlayed++;
-     
-    // Discard outpost card   
-    preState.playedCards[preState.playedCardCount] = preState.hand[player][handPos];
-    preState.playedCardCount++;
-
-    // Set position of outpost card to -1
-    int handCount = preState.handCount[player];
-    preState.hand[player][handPos] = -1;
-
-    // Card in last position of hand
-    if (handPos == (handCount - 1))
-        preState.handCount[player]--;
-
-    else
-    {     
-        preState.hand[player][handPos] = preState.hand[player][handCount - 1];
-        preState.hand[player][handCount - 1] = -1;
-        preState.handCount[player]--;
-    } 
+int main () {
+    srand(time(NULL));
     
-
-    // Compare pre and post state of game 
-    if (memcmp(&preState, postState, sizeof(struct gameState)) == 0)     
-        assertTest(1, passedTests);  
-    else 
-    { 
-        assertTest(0, failedTests); 
-
-        // Print test conditions 
-        printf("TEST CONDITIONS\n");
-        printf("Player: %d   Hand Count: %d   Deck Count: %d   Discard Count: %d   Hand Position: %d\n", player + 1, preHandCount, preDeckCount, preDiscardCount, handPos);
+    int k[10] = {adventurer, council_room, feast, gardens, mine,
+        remodel, smithy, duchy, baron, great_hall};
+    
+    struct gameState unchangedGameState;
+    struct gameState testGameState;
+    
+    int smithy_effect_fail_counter = 0;
+    int num_tests = 500;
+    int num_tests_performed = 0;
+    int test_counter = 0;
+    
+    printf("Begin Random Smithy Test\n");
+    // randomly initialized the game state
+    for (test_counter = 0; test_counter < num_tests; test_counter++) {
+        
+        //set up the game variables
+        int players, player;
+        players = (rand() % 3) + 2; //2-3 players
+        player = rand() % players;
+        int randGameSeed = rand();
+        //soft assert
+        if (!(initializeGame(players, k, randGameSeed, &unchangedGameState) == 0)){
+            printf("Failed to initalize during test %d\n", test_counter);
+            break;
+        }
+        
+        //randomly set up the player variables
+        unchangedGameState.deckCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+        unchangedGameState.discardCount[player] = (rand() % (MAX_DECK - 1)) + 1;
+        unchangedGameState.handCount[player] = (rand() % (MAX_HAND - 1)) + 1;
+        unchangedGameState.whoseTurn = player;
+        
+        //Begin Testing
+        
+        //The game is now set up; copy the state as 'unchangedGameState'
+        //This is used later in the program to test if the game state actually changed
+        testGameState = unchangedGameState;
+        int bonus = 0;
+        
+        //call smithy card and make sure it returnes a 0
+        //NOTE My Smithy Card always returns a -1, this will always fail
+        //NOTE 2 I supressed the printf so as to not spam the console with fails
+        //and instead added a fail counter to be reported at the end
+        int smithyReturnValue;
+        smithyReturnValue = cardEffect(smithy,0,0,0,&unchangedGameState,0,&bonus);
+        if (smithyReturnValue == -1) {
+            //printf("Smithy Card Effect test failed during %d", test_counter);
+            smithy_effect_fail_counter++;
+        }
+        
+        
+        //call draw card 3 times and see if it fails
+        int draw1, draw2, draw3;
+        draw1 = drawCard(player,&testGameState);
+        if (draw1 == -1) { //soft assert
+            printf("First Draw Card test failed during %d\n", test_counter);
+        }
+        draw2 = drawCard(player,&testGameState);
+        if (draw2 == -1) { //soft assert
+            printf("Second Draw Card test failed during %d\n", test_counter);
+        }
+        draw3 = drawCard(player,&testGameState);
+        if (draw3 == -1) { //soft assert
+            printf("Third Draw Card test failed during %d\n", test_counter);
+        }
+        //check to see if the draw card failed and if the deck counter was > 0
+        //cant draw from an empty deck
+        if ((draw1 == -1 || draw2 == -1 || draw3 == -1) && testGameState.deckCount[player] > 0) { //soft assert
+            printf("Deck Count test failed while drawing card during %d\n", test_counter);
+        }
+        
+        
+        //call discardCard and check its return value
+        int discardReturnValue;
+        discardReturnValue = discardCard(0, player, &testGameState, 0);
+        if (discardReturnValue == -1) { //soft assert
+            printf("Card Effect test failed during %d\n", test_counter);
+        }
+        
+        //check if the hand count is the same
+        if (!(unchangedGameState.handCount[player] == testGameState.handCount[player])) { //soft assert
+            printf("Hand Count test failed during %d\n", test_counter);
+        }
+        
+        //check if the deck count is the same
+        if (!(unchangedGameState.deckCount[player] == testGameState.deckCount[player])) { //soft assert
+            printf("Deck Count test failed during %d\n", test_counter);
+        }
+        num_tests_performed++;
+        
     }
-          
+    if (smithy_effect_fail_counter > 0) { //soft assert
+        printf("Smithy card effect failed: %d times\n",smithy_effect_fail_counter);
+    }
+    printf("Number of Tests Completed: %d\n", num_tests_performed);
+    printf("End Smithy Test\n");
+    
     return 0;
 }
-
-
-
-
-
 

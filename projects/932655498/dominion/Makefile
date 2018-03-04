@@ -12,6 +12,11 @@ playdom: dominion.o playdom.c
 randa:
 	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c randomtestadventurer.c rngs.c -o randa -lm -g
 
+debuga:
+	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c randomtestadventurer.c rngs.c -o debuga -lm -g
+	./debuga
+
+
 rand1:
 	gcc -fprofile-arcs -ftest-coverage -Wall -std=c99 dominion.c randomtestcard1.c rngs.c -o rand1 -lm -g
 

@@ -1,93 +1,46 @@
-/***************************************************************************
-** Filename: unittest4.c
-** Author: William Ryan Brooks
-** Date: 2018-02-04
-** Description: Unit test for the whoseTurn() function in dominion.c
-****************************************************************************/
+
+#include "assert.h"
 #include "dominion.h"
-#include "dominion_helpers.h"
-#include <string.h>
 #include <stdio.h>
-#include <assert.h>
 #include "rngs.h"
 #include <stdlib.h>
 
-void assertTest(int val, int *tests)
-{
-    if (val == 1)
-    { 
-        printf("--------TEST PASSED--------\n\n");
-    }
-    else
-        printf("--------TEST FAILED--------\n\n");
-    (*tests)++;
-}
-
-
-int main()
-{
-    // TEST: whoseTurn() function:
-    printf("---------------------------------------------------------\n");
-    printf("              TESTING: whoseTurn() function\n");
-    printf("---------------------------------------------------------\n\n");
-
-    int passedTests = 0; 
-    int failedTests = 0;
-
-    struct gameState state;
-
-    int k[10] = {adventurer, council_room, feast, gardens, mine, remodel, smithy, village, baron, great_hall};
- 
-    // Game with max players  
-    int retValue = initializeGame(MAX_PLAYERS, k, 1, &state);
-
-    // Check that game is valid
-    assert(retValue == 0);    
+//Test buyCard(...)
+//Reference & Citation testBuyCard.c ws used for info on how to set up a game for test
+//Note my buyCard is different than the given testBuyCard
+int main(int argc, char ** argv){
+    printf("Unit Test 4: Beginning\n");
     
-    // Test: Game starts with player 1's turn
-    printf("---------------------------------------------------\n");
-    printf("    TEST: Game starts with player 1's turn\n");
-    printf("---------------------------------------------------\n");
-
-    printf("whoseTurn(&state) = %d, expected = 0\n", whoseTurn(&state)); 
-    if (whoseTurn(&state) == 0)
-        assertTest(1, &passedTests);
-    else
-        assertTest(0, &failedTests);
-
-    // Test: Check for each player's turn
-    int i;
-    for (i = 0; i < MAX_PLAYERS; i++)
-    {
-        printf("---------------------------------------------------\n");
-        printf("    TEST: Player %d's turn\n", i + 1);  
-        printf("---------------------------------------------------\n");
-  
-        state.whoseTurn = i;
-        printf("whoseTurn(&state) = %d, expected = %d\n", whoseTurn(&state), i); 
-        if (whoseTurn(&state) == i)
-            assertTest(1, &passedTests);
-        else
-            assertTest(0, &failedTests);
-    }
-
-    printf("\n");
-    printf("-----------------------------------------------------\n");
-    printf("         Tests passed: %d\n", passedTests);
-    printf("-----------------------------------------------------\n");
-
-    printf("\n");
-    printf("-----------------------------------------------------\n");
-    printf("         Tests failed: %d\n", failedTests);
-    printf("-----------------------------------------------------\n");
- 
+    struct gameState G;
+    int i, n, r, p, deckCount, discardCount, handCount;
+    int testGame, randInt = 0;
+    
+    int k[10] = {adventurer, council_room, feast, gardens, mine,
+        remodel, smithy, village, baron, great_hall};
+    
+    randInt = rand() % 10;
+    //Creating a test game
+    testGame = initializeGame(2, k, randInt, &G);
+    assert(testGame == 0);
+    
+    G.coins = 10;
+    G.numBuys = 0;
+    int didBuyResult = 0;
+    
+    //test number of buys returns -1 if user have no buys
+    G.numBuys = 0;
+    didBuyResult = buyCard(2,&G);
+    assert(didBuyResult == -1);
+    printf("Unit Test 4: Passed check to see if user has > 0 numBuys\n");
+    
+    //test successfull buy
+    G.numBuys = 1;
+    didBuyResult = -1;
+    didBuyResult = buyCard(2,&G);
+    assert(didBuyResult == 0);
+    printf("Unit Test 4: Passed check to buyCard(...)\n");
+    
+    printf("Unit Test 4: Ended With Success\n");
+    
     return 0;
 }
-
-     
-
-    
-    
-
-
-    
