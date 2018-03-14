@@ -156,19 +156,72 @@ public class UrlValidatorTest extends TestCase {
        }
 	   System.out.print("Finished manual tests.\n\n");
    }
-   
-   
-   public void testYourFirstPartition()
-   {
-	 //You can use this function to implement your First Partition testing	   
 
-   }
+// Partitions:
+//
+// 1. Input has invalid URL scheme. All other elements valid.
+//      - returns false at line 313
+//      URL: 3ht://www.google.com:80/test1?action=view
+//      URL: ://255.255.255.255/$23
+// 2. Input has all valid elements. Scheme is "file:" and authority contains a ":" character.
+//      - returns false at line 321
+//      URL: file://www.google.com:80
+//      URL: file://go.com:0 
+// 3. Input has invalid URL authority. All other elements valid. Scheme is not "file:".
+//      - returns false at line 328
+//      URL: http://1.2.3.4.5:80/test1?action=view
+//      URL: ftp://go.a:0/t123
+// 4. Input has invalid URL path. All other elements valid.
+//      - returns false at line 333
+//      URL: http://www.google.com/../test1?action=view
+//      URL: ftp://0.0.0.0:0/test1//file
+// 5. Input has invalid URL query. All other elements valid.
+//      - returns false at line 337 
+//      URL: http://www.google.com:80/test1?actionview
+//      URL: ftp://go.com/t123?modeup
+// 6. Input has all valid elements in correct order.
+//      - returns true
+//      URL: http://www.google.com:80/test1?action=view
+//      URL: ftp://go.com:0/t123?action=edit&mode=up
    
-   public void testYourSecondPartition(){
-		 //You can use this function to implement your Second Partition testing	   
+public void testPartitions()
+{
+    System.out.printf("\nRunning partition tests on isValid()\n\n"); 
+    UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+    String[] partition1 = {"TEST: Invalid URL Scheme", "3ht://www.google.com:80/test1?action=view", "://255.255.255.255/$23"};
+    String[] partition2 = {"TEST: Scheme is \'file:\' and authority contains \':\' character.", "file://www.google.com:80", "file://go.com:0"};
+    String[] partition3 = {"TEST: Invalid URL Authority", "http://1.2.3.4.5:80/test1?action=view", "ftp://go.a:0/t123"};
+    String[] partition4 = {"TEST: Invalid URL Path", "http://www.google.com/../test1?action=view", "ftp://0.0.0.0:0/test1//file"};
+    String[] partition5 = {"TEST: Invalid URL Query", "http://www.google.com:80/test1?actionview", "ftp://go.com/t123?modeup"};
+    String[] partition6 = {"TEST: All Valid Elements in Correct Order", "http://www.google.com:80/test1?action=view", "ftp://go.com:0/t123?action=edit&mode=up"};
 
-   }
-   //You need to create more test cases for your Partitions if you need to 
+
+    String[][] partitions = {partition1, partition2, partition3, partition4, partition5, partition6};
+                          
+    boolean isValid;
+    for (int i = 0; i < partitions.length; i++)
+    {
+        System.out.printf("\n%s\n", partitions[i][0]);
+        for (int j = 1; j < partitions[i].length; j++)
+        {
+        	try 
+        	{
+        		isValid = urlVal.isValid(partitions[i][j]);
+        		if (isValid)
+        			System.out.printf("%s is a valid url\n", partitions[i][j]); 
+        		else
+        			System.out.printf("%s is NOT a valid url\n", partitions[i][j]); 
+        	} 
+        	catch (Throwable e) 
+        	{
+        		System.out.printf("%s: ", partitions[i][j]);
+        		System.out.println("isValid failed with Exception " + e);
+        	}
+        }
+    }
+    System.out.printf("\nFinished partition tests.\n\n");
+}
+   
    
    public void testIsValid()
    {
@@ -416,6 +469,7 @@ public class UrlValidatorTest extends TestCase {
    public static void main(String[] argv) {
 	   UrlValidatorTest fct = new UrlValidatorTest("url test");
 	   fct.testManualTest();
+	   fct.testPartitions();
 	   fct.testIsValid();
    }
 }
