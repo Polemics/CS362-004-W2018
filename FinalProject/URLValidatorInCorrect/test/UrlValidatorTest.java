@@ -10,21 +10,113 @@ import junit.framework.TestCase;
 public class UrlValidatorTest extends TestCase {
 	//This is an array of URLs that should return a true
 	public static String[] trueArray = {
-			"http://", 
-			"http://",
-			//"ftp://",
-			"http://www.google.com",
-			
+			"http://www.google.com/test1:80",
+			"http://www.google.com/test1:-000080", //this should be invalid
+			//"ftp://", //crashes
+			//"h3t://", //crashes	
 	};
 	
 	//This is an array of URLs that should return false
 	public static String[] falseArray = {
+			":65636",
+			"?action=view",
+			"/test1",
 			"3ht://",
 			"http:/",
+			"http:",
+			"http/",
+
 	};
 
+	public static String[] trueSchemeArray = {
+			"http://",
+			"h3t://",
+			"ftp://",
+			"",
+				
+	};
+	
+	public static String[] falseSchemeArray = {
+			"3ht://",
+			"http:/",
+			"http:",
+			"http/",
+			"://",
+	};
+	
+	public static String[] trueAuthorityArray = {
+			//ALL TRUE AUTHORITY VALUES CAUSE AN EXCEPTION DURING RUNTIME
+			//"www.google.com",
+			//"go.com",
+			//"go.au",
+			//"0.0.0.0",
+			//"255.255.255.255",
+			//"255.com",
+	};
+	
+	public static String[] falseAuthorityArray = {
+			//ALL FALSE AUTHORITY VALUES CAUSE AN EXCEPTION DURING RUNTIME
+			//"256.256.256.256",
+			//"1.2.3.4.5",
+			//"1.2.3.4.",
+			//"1.2.3",
+			//".1.2.3.4",
+			//"go.a",
+			//"go.a1a",
+			//"go.1aa",
+			//"aaa.",
+			//".aaa",
+			//"aaa",
+			//"",
+			
+	};
+	
+	public static String[] trueFragmentArray = {
+			":80",
+			":65535",
+			":0",
+			"",
+			
+	};
+	
+	public static String[] falseFragmentArray = {
+			":-1",
+			":65636",
+			":65a",
+	};
+	
+	public static String[] truePathArray = {
+			"/test1",
+			"/t123",
+			"/$23",
+			"/test1/",
+			"",
+			"/test1/file",
+			
+	};
+	
+	public static String[] falsePathArray = {
+			"/..",
+			"/../",
+			"/..//file",
+			"/test1//file",
+	};
+	
+	public static String[] trueQueryArray = {
+			"?action=view",
+			"?action=edit&mode=up",
+			"",
+	};
+	
+	public static String[] falseQueryArray = {
+	};
+	
+	
+	
+	
 	//The soft assert will return true or false and not crash the program
 	public boolean softAssert(boolean value) {
+		//System.out.println(value);
 		if (value) {
 			return true;
 		} else {
@@ -71,6 +163,7 @@ public class UrlValidatorTest extends TestCase {
 	   System.out.println("Passed Initial Validation\n");
 	   //End Initial Validation
 	   
+	   //***BEGIN GENERAL isValid TESTING
 	   //Test an array of values that should return true
 	   System.out.println("Number of Positive Tests: " + trueArray.length);
 	   for (int index = 0; index < trueArray.length; index++) {
@@ -80,9 +173,9 @@ public class UrlValidatorTest extends TestCase {
 		   try {
 			   //System.out.println("Return Value From isValid: " + urlVal.isValid(trueArray[index]));
 			    if (softAssert(urlVal.isValid(trueArray[index]))) {
-			   		System.out.println("Test Passed, was expecting true and received true");
+			   		//System.out.println("Test Passed, was expecting true and received true");
 			    } else { 
-				   	System.out.println("Test Failed, was expecting false and received true");
+				   	System.out.println("Test Failed, was expecting true and received false");
 			    }
 		   } catch (Exception e){
 			   System.out.println("isValid failed with Exception " + e);
@@ -100,14 +193,203 @@ public class UrlValidatorTest extends TestCase {
 			   if (softAssert(urlVal.isValid(falseArray[index]))) {
 			   		System.out.println("Test Failed, was expecting false and received true"); 
 			   } else {
-				   	System.out.println("Test Passed, was expecting false and received false");
+				   	//System.out.println("Test Passed, was expecting false and received false");
 			   }
 		   } catch (Exception e) {
 			   System.out.println("isValid failed with Exception " + e);
+		   }   
+	   }
+	   
+	   //***BEGIN SCHEME TESTING
+	   System.out.println("\nBEGIN SCHEME TESTING\n");
+	   //Test an array of values that should return true
+	   System.out.println("Number of Positive Tests: " + trueSchemeArray.length);
+	   for (int index = 0; index < trueSchemeArray.length; index++) {
+		   
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, trueSchemeArray[index]);
+		   //assertTrue(urlVal.isValid(trueArray[index]));
+		   try {
+			   //System.out.println("Return Value From isValid: " + urlVal.isValid(trueArray[index]));
+			    if (softAssert(urlVal.isValidScheme(trueSchemeArray[index]))) {
+			   		//System.out.println("Test Passed, was expecting true and received true");
+			    } else { 
+				   	System.out.println("Test Failed, was expecting true and received false");
+			    }
+		   } catch (Exception e){
+			   System.out.println("isValidScheme failed with Exception " + e);
 		   }
 		   
-		   
+        }
+	   
+	   System.out.println("\n");
+	   
+	   //Test an array of values that should return false
+	   System.out.println("Number of Negative Tests: " + falseSchemeArray.length);
+	   for (int index = 0; index < falseSchemeArray.length; index++) {
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, falseSchemeArray[index]);
+		   try {
+			   if (softAssert(urlVal.isValidScheme(falseSchemeArray[index]))) {
+			   		System.out.println("Test Failed, was expecting false and received true"); 
+			   } else {
+				   	//System.out.println("Test Passed, was expecting false and received false");
+			   }
+		   } catch (Exception e) {
+			   System.out.println("isValidScheme failed with Exception " + e);
+		   }   
 	   }
+	   
+	   //***BEGIN AUTHORITY TESTING
+	   System.out.println("\nBEGIN AUTHORITY TESTING\n");
+	   //Test an array of values that should return true
+	   System.out.println("Number of Positive Tests: " + trueAuthorityArray.length);
+	   for (int index = 0; index < trueAuthorityArray.length; index++) {
+		   
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, trueAuthorityArray[index]);
+		   //assertTrue(urlVal.isValid(trueArray[index]));
+		   try {
+			   //System.out.println("Return Value From isValid: " + urlVal.isValid(trueArray[index]));
+			    if (softAssert(urlVal.isValidAuthority(trueAuthorityArray[index]))) {
+			   		//System.out.println("Test Passed, was expecting true and received true");
+			    } else { 
+				   	System.out.println("Test Failed, was expecting true and received false");
+			    }
+		   } catch (Exception e){
+			   System.out.println("isValidAuthority failed with Exception " + e);
+		   }
+		   
+        }
+	   
+	   System.out.println("\n");
+	   
+	   //Test an array of values that should return false
+	   System.out.println("Number of Negative Tests: " + falseAuthorityArray.length);
+	   for (int index = 0; index < falseAuthorityArray.length; index++) {
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, falseAuthorityArray[index]);
+		   try {
+			   if (softAssert(urlVal.isValidAuthority(falseAuthorityArray[index]))) {
+			   		System.out.println("Test Failed, was expecting false and received true"); 
+			   } else {
+				   	//System.out.println("Test Passed, was expecting false and received false");
+			   }
+		   } catch (Exception e) {
+			   System.out.println("isValidAuthority failed with Exception " + e);
+		   }   
+	   }
+	   
+	   
+	   //***BEGIN FRAGMENT TESTING (FRAGMENTS INCLUDE PORTS)
+	   System.out.println("\nBEGIN FRAGMENT (PORT) TESTING\n");
+	   //Test an array of values that should return true
+	   System.out.println("Number of Positive Tests: " + trueFragmentArray.length);
+	   for (int index = 0; index < trueFragmentArray.length; index++) {
+		   
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, trueFragmentArray[index]);
+		   //assertTrue(urlVal.isValid(trueArray[index]));
+		   try {
+			   //System.out.println("Return Value From isValid: " + urlVal.isValid(trueArray[index]));
+			    if (softAssert(urlVal.isValidFragment(trueFragmentArray[index]))) {
+			   		//System.out.println("Test Passed, was expecting true and received true");
+			    } else { 
+				   	System.out.println("Test Failed, was expecting true and received false");
+			    }
+		   } catch (Exception e){
+			   System.out.println("isValidFragment failed with Exception " + e);
+		   }
+		   
+        }
+	   
+	   System.out.println("\n");
+	   
+	   //Test an array of values that should return false
+	   System.out.println("Number of Negative Tests: " + falseFragmentArray.length);
+	   for (int index = 0; index < falseFragmentArray.length; index++) {
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, falseFragmentArray[index]);
+		   try {
+			   if (softAssert(urlVal.isValidFragment(falseFragmentArray[index]))) {
+			   		System.out.println("Test Failed, was expecting false and received true"); 
+			   } else {
+				   	//System.out.println("Test Passed, was expecting false and received false");
+			   }
+		   } catch (Exception e) {
+			   System.out.println("isValidFragment failed with Exception " + e);
+		   }   
+	   }
+	   
+	   //***BEGIN PATH TESTING
+	   System.out.println("\nBEGIN PATH TESTING\n");
+	   //Test an array of values that should return true
+	   System.out.println("Number of Positive Tests: " + truePathArray.length);
+	   for (int index = 0; index < truePathArray.length; index++) {
+		   
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, truePathArray[index]);
+		   //assertTrue(urlVal.isValid(trueArray[index]));
+		   try {
+			   //System.out.println("Return Value From isValid: " + urlVal.isValid(trueArray[index]));
+			    if (softAssert(urlVal.isValidPath(truePathArray[index]))) {
+			   		//System.out.println("Test Passed, was expecting true and received true");
+			    } else { 
+				   	System.out.println("Test Failed, was expecting true and received false");
+			    }
+		   } catch (Exception e){
+			   System.out.println("isValidPath failed with Exception " + e);
+		   }
+		   
+        }
+	   
+	   System.out.println("\n");
+	   
+	   //Test an array of values that should return false
+	   System.out.println("Number of Negative Tests: " + falsePathArray.length);
+	   for (int index = 0; index < falsePathArray.length; index++) {
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, falsePathArray[index]);
+		   try {
+			   if (softAssert(urlVal.isValidPath(falsePathArray[index]))) {
+			   		System.out.println("Test Failed, was expecting false and received true"); 
+			   } else {
+				   	//System.out.println("Test Passed, was expecting false and received false");
+			   }
+		   } catch (Exception e) {
+			   System.out.println("isValidPath failed with Exception " + e);
+		   }   
+	   }
+	   
+	   //***BEGIN QUERY TESTING
+	   System.out.println("\nBEGIN QUERY TESTING\n");
+	   //Test an array of values that should return true
+	   System.out.println("Number of Positive Tests: " + trueQueryArray.length);
+	   for (int index = 0; index < trueQueryArray.length; index++) {
+		   
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, trueQueryArray[index]);
+		   //assertTrue(urlVal.isValid(trueArray[index]));
+		   try {
+			   //System.out.println("Return Value From isValid: " + urlVal.isValid(trueArray[index]));
+			    if (softAssert(urlVal.isValidQuery(trueQueryArray[index]))) {
+			   		//System.out.println("Test Passed, was expecting true and received true");
+			    } else { 
+				   	System.out.println("Test Failed, was expecting false and received true");
+			    }
+		   } catch (Exception e){
+			   System.out.println("isValid failed with Exception " + e);
+		   }
+		   
+        }
+	   
+	   System.out.println("\n");
+	   
+	   //Test an array of values that should return false
+	   System.out.println("Number of Negative Tests: " + falseQueryArray.length);
+	   for (int index = 0; index < falseQueryArray.length; index++) {
+		   System.out.printf("Testing Index: %d \t String: %s \n", index, falseQueryArray[index]);
+		   try {
+			   if (softAssert(urlVal.isValidQuery(falseQueryArray[index]))) {
+			   		System.out.println("Test Failed, was expecting false and received true"); 
+			   } else {
+				   	//System.out.println("Test Passed, was expecting false and received false");
+			   }
+		   } catch (Exception e) {
+			   System.out.println("isValid failed with Exception " + e);
+		   }   
+	   }   
    }
    
    public static void main(String[] argv) {
