@@ -45,7 +45,7 @@ public class UrlValidatorTest extends TestCase {
        UrlValidator urlVal = new UrlValidator(null, null,  UrlValidator.ALLOW_ALL_SCHEMES);
        String[] arrayOfManualTests = {"http://ww.go6ogle.com",
                                       "http://eecs.oregonstate.edu/online-cs-students",
- //                                     "https://www.wellsfargo.com/"
+//                                      "https://www.wellsfargo.com/",
                                       "ftp:/3sfs",
                                       "http://www.google.com"};
        boolean result;
@@ -62,7 +62,7 @@ public class UrlValidatorTest extends TestCase {
                        System.out.printf("%s is NOT a valid url\n", arrayOfManualTests[i]);
                }
        }
-	   
+	   System.out.print("Finished manual tests.\n\n");
    }
    
    
