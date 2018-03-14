@@ -133,7 +133,8 @@ public class UrlValidatorTest extends TestCase {
    public void testManualTest()
    {
 //You can use this function to implement your manual testing
-       System.out.print("Running manual tests on isValid()\n");
+	   System.out.println("Hello World");
+	   System.out.print("Running manual tests on isValid()\n");
        UrlValidator urlVal = new UrlValidator(null, null,  UrlValidator.ALLOW_ALL_SCHEMES);
        String[] arrayOfManualTests = {"http://ww.go6ogle.com",
                                       "http://eecs.oregonstate.edu/online-cs-students",
