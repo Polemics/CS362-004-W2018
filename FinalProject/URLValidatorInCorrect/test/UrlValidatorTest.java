@@ -129,7 +129,7 @@ public class UrlValidatorTest extends TestCase {
    }
 
    
-   //Cheryl was Here
+   
    public void testManualTest()
    {
 //You can use this function to implement your manual testing
