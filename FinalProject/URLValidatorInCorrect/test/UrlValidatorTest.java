@@ -140,6 +140,9 @@ public class UrlValidatorTest extends TestCase {
                                       "http://eecs.oregonstate.edu/online-cs-students",
 //                                      "https://www.wellsfargo.com/",
                                       "ftp:/3sfs",
+//                                      "file://localhost/c:/WINDOWS/clock.avi",
+//                                    "file://localhost//WINDOWS/clock.avi",
+//                                      "http://453ekf",
                                       "http://www.google.com"};
        boolean result;
        for (int i=0; i<arrayOfManualTests.length; i++)
