@@ -138,8 +138,11 @@ public class UrlValidatorTest extends TestCase {
         UrlValidator urlVal = new UrlValidator(null, null,  UrlValidator.ALLOW_ALL_SCHEMES);
         String[] arrayOfManualTests = {"http://ww.go6ogle.com",
             "http://eecs.oregonstate.edu/online-cs-students",
-            //                                      "https://www.wellsfargo.com/",
+//          "https://www.wellsfargo.com/",
             "ftp:/3sfs",
+//          "file://localhost/c:/WINDOWS/clock.avi",
+//          "file://localhost//WINDOWS/clock.avi",
+//          "http://453ekf",
             "http://www.google.com"};
         boolean result;
         for (int i=0; i<arrayOfManualTests.length; i++)
